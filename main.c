@@ -39,8 +39,7 @@ BIGNUM* encryptRSA(BIGNUM* rawValue, BIGNUM* encryptKey, BIGNUM* n) {
 	return cipherValue;
 }
 
-BIGNUM* decryptRSA(BIGNUM* cipherValue, BIGNUM* decryptKey, BIGNUM* n)
-{
+BIGNUM* decryptRSA(BIGNUM* cipherValue, BIGNUM* decryptKey, BIGNUM* n) {
 	/*
 	 * d(x) = (x ^ d) mod n
 	*/
@@ -101,6 +100,8 @@ void task1() {
 	BN_hex2bn(&q, "E85CED54AF57E53E092113E62F436F4F");
 	BN_hex2bn(&e, "0D88C3");
 
+	// e.d = 1 (mod phi[n]) => d is inverse modulo of e with mod phi[n];
+
 	BIGNUM* phi = getPhiOf(p,q);
 	BIGNUM* d = getModuloInverseOf(e, phi);
 
@@ -115,7 +116,7 @@ void task2() {
 	BIGNUM* message = BN_new();
 	BIGNUM* e = BN_new();	// public key
 
-	BN_hex2bn(&message, "4120746f702073656372657421"); // after encoding
+	BN_hex2bn(&message, "4120746f702073656372657421"); // after encoding "A top secret!"
 	BN_hex2bn(&n, "DCBFFE3E51F62E09CE7032E2677A78946A849DC4CDDE3A4D0CB81629242FB1A5");
 	BN_hex2bn(&e, "010001");
 	BN_hex2bn(&d, "74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
@@ -213,21 +214,22 @@ void task6() {
 	BIGNUM* n = BN_new();
 	BIGNUM* signedValue = BN_new();
 
-	// after run key.bash, we have:
+	// extract in openssl x509 -in c1.pem -text -noout
 	BN_hex2bn(&n, "00c14bb3654770bcdd4f58dbec9cedc366e51f311354ad4a66461f2c0aec6407e52edcdcb90a20eddfe3c4d09e9aa97a1d8288e51156db1e9f58c251e72c340d2ed292e156cbf1795fb3bb87ca25037b9a52416610604f571349f0e8376783dfe7d34b674c2251a6df0e9910ed57517426e27dc7ca622e131b7f238825536fc13458008b84fff8bea75849227b96ada2889b15bca07cdfe951a8d5b0ed37e236b4824b62b5499aecc767d6e33ef5e3d6125e44f1bf71427d58840380b18101faf9ca32bbb48e278727c52b74d4a8d697dec364f9cace53a256bc78178e490329aefb494fa415b9cef25c19576d6b79a72ba2272013b5d03d40d321300793ea99f5");
 	BN_hex2bn(&e, "010001");
+	// extract in openssl x509 -in c0.pem -text -noout
 	BN_hex2bn(&signedValue, "aa9fbe5d911bade44e4ecc8f07644435b4ad3b133fc129d8b4abf3425149463bd6cf1e4183e10b572f83697965076f59038c51948918103e1e5cedba3d8e4f1a1492d32bffd498cba7930ebcb71b93a4424246d9e5b11a6b682a9b2e48a92f1d2ab0e3f820945481502eeed7e0207a7b2e67fbfad817a45bdcca0062ef23af7a58f07a740cbd4d43f18c0287dce3ae09d2f7fa373cd24bab04e543a5d255110e41875f38a8e57a5e4c46b8b6fa3fc34bcd4035ffe0a471740ac1208be3544784d518bd519b405ddd423012d13aa5639aaf9008d61bd1710b067190ebaeadafba5fc7db6b1e78a2b4d10623a763f3b543fa568c50177b1c1b4e106b220e845294");
 
 	BIGNUM* decryptedValue = decryptRSA(signedValue, e, n);
 	BIGNUM* mod = BN_new();
 	BIGNUM* num_2 = BN_new();
-	BIGNUM* num_10 = BN_new();
+	BIGNUM* num_256 = BN_new();
 	BN_dec2bn(&num_2, "2");
-	BN_dec2bn(&num_10, "256");
+	BN_dec2bn(&num_256, "256");
 
-	BN_exp(mod, num_2, num_10, ctx);
+	BN_exp(mod, num_2, num_256, ctx);
 	BN_mod(d, decryptedValue, mod, ctx);
-	printBN("[Task 6] private key: ", d);
+	printBN("[Task 6] private key: ", d);	// then compare with private key after run key.bash
 
 	BN_CTX_free(ctx);
 
