@@ -17,7 +17,7 @@ bash run.bash
 
 ### Overview Result of 6 tasks
 
-![oveview]()
+![oveview](https://github.com/lamnguyen5464/SEEDLab/blob/master/result.png?raw=true)
 
 ### Task 1
 
