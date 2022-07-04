@@ -17,6 +17,21 @@ bash run.bash
 
 ### Task 1
 
+First of all, we initialize 3 variables of p,q and e with the values given in the problem
+
+```
+	BIGNUM *p = BN_new();
+	BIGNUM *q = BN_new();
+	BIGNUM *e = BN_new();
+
+	BN_hex2bn(&p, "F7E75FDC469067FFDC4E847C51F452DF");
+	BN_hex2bn(&q, "E85CED54AF57E53E092113E62F436F4F");
+	BN_hex2bn(&e, "0D88C3");
+
+```
+
+The next step is to calculate phi n with n = p\*q through the function:
+
 ```
 
 BIGNUM* getPhiOf(BIGNUM* p, BIGNUM* q) {
@@ -35,6 +50,23 @@ BIGNUM* phi = BN_new();
 
     return phi;
 
+}
+
+```
+
+Finally, we have the theory:
+
+# e\*d = 1 (mod phi[n]) => d is inverse modulo of e with mod phi[n];
+
+So, the solution of this problem is the inverse modulo of the big num e computed by the function
+
+```
+BIGNUM* getModuloInverseOf(BIGNUM* e, BIGNUM* mod) {
+	BN_CTX *ctx = BN_CTX_new();
+	BIGNUM* res = BN_new();
+	BN_mod_inverse(res, e, mod, ctx);
+	BN_CTX_free(ctx);
+	return res;
 }
 
 ```
