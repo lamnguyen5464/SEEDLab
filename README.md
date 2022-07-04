@@ -17,7 +17,7 @@ bash run.bash
 
 ### Overview Result of 6 tasks
 
-![oveview](https://github.com/lamnguyen5464/SEEDLab/blob/master/result.png?raw=true)
+![oveview](https://scontent.fsgn13-4.fna.fbcdn.net/v/t1.15752-9/291747790_1020372478589642_5077618427286955742_n.png?_nc_cat=107&ccb=1-7&_nc_sid=ae9488&_nc_ohc=-CsnOKO0uOUAX81i7l1&_nc_ht=scontent.fsgn13-4.fna&oh=03_AVKraqqLHVQwlQTHmS_m7RF1VIYJPOseUq1FRwiMXIm0XA&oe=62E80756)
 
 ### Task 1
 
@@ -322,4 +322,25 @@ After following the steps in the requirement to download the certificate, we nee
 	BN_hex2bn(&signedValue, "aa9fbe5d911bade44e4ecc8f07644435b4ad3b133fc129d8b4abf3425149463bd6cf1e4183e10b572f83697965076f59038c51948918103e1e5cedba3d8e4f1a1492d32bffd498cba7930ebcb71b93a4424246d9e5b11a6b682a9b2e48a92f1d2ab0e3f820945481502eeed7e0207a7b2e67fbfad817a45bdcca0062ef23af7a58f07a740cbd4d43f18c0287dce3ae09d2f7fa373cd24bab04e543a5d255110e41875f38a8e57a5e4c46b8b6fa3fc34bcd4035ffe0a471740ac1208be3544784d518bd519b405ddd423012d13aa5639aaf9008d61bd1710b067190ebaeadafba5fc7db6b1e78a2b4d10623a763f3b543fa568c50177b1c1b4e106b220e845294");
 ```
 
-Then, we use our decryptRSA function to extract the signedValue variable to archive the decrypted message
+Then, we use our decryptRSA function to extract the signedValue variable to archive the decrypted message then mod 2^256 to have the private key. Finally, we compare that key with the key extracted from the certificate archived by running '_bash key.bash_'
+
+```cpp
+	BIGNUM* decryptedValue = decryptRSA(signedValue, e, n);
+	BIGNUM* mod = BN_new();
+	BIGNUM* num_2 = BN_new();
+	BIGNUM* num_256 = BN_new();
+	BN_dec2bn(&num_2, "2");
+	BN_dec2bn(&num_256, "256");
+
+	BN_exp(mod, num_2, num_256, ctx);
+	BN_mod(d, decryptedValue, mod, ctx);
+	printBN("[Task 6] private key: ", d);	// then compare with private key after run key.bash
+```
+
+The final result:
+
+```
+[Task 6] private key:  7061DF0A50B8F2BA3367ECFABAB273A16F3BB1378DBE1FE524E6DFD90DFA3B91
+Private key extracted from certificate:
+7061df0a50b8f2ba3367ecfabab273a16f3bb1378dbe1fe524e6dfd90dfa3b91  c0_body.bin
+```
