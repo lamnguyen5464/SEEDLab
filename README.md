@@ -46,14 +46,14 @@ BIGNUM* getPhiOf(BIGNUM* p, BIGNUM* q) {
     BIGNUM* one = BN_new();
     BIGNUM* phi = BN_new();
 
-        BN_dec2bn(&one, "1");
-        BN_sub(p_minus_one, p, one);
-        BN_sub(q_minus_one, q, one);
-        BN_mul(phi, p_minus_one, q_minus_one, ctx);
+    BN_dec2bn(&one, "1");
+    BN_sub(p_minus_one, p, one);
+    BN_sub(q_minus_one, q, one);
+    BN_mul(phi, p_minus_one, q_minus_one, ctx);
 
-        BN_CTX_free(ctx);
+    BN_CTX_free(ctx);
 
-        return phi;
+    return phi;
 
 }
 
@@ -127,7 +127,7 @@ Which means we can achive the encryption through the public key (e,n) by computi
 We also create a decrypt function shares the common idea with the encrypt one with:
 
 <p style="font-weight: bold;" align="center">
-	 d(x) = (x ^ e) mod n
+	 d(x) = (x ^ d) mod n
 </p>
 
 ```cpp
