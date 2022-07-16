@@ -1,2 +1,3 @@
-tr 'abcdefghijklmnopqrstuvwxyz' 'sxtrwinqbedpvgkfmalhyuojzc' \
-      < plaintext.txt > ciphertext.txt
+tr 'nyvxuqmhtipaczlgbredfskjow' \
+   'eothasinrdluymwfgcbpkvjqxz'  \
+   < ciphertext.txt > plaintext.txt

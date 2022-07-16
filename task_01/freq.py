@@ -3,7 +3,7 @@
 from collections import Counter
 import re
 
-TOP_K  = 20
+TOP_K  = 26
 N_GRAM = 3
 
 # Generate all the n-grams for value n
