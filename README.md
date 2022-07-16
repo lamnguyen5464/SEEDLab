@@ -17,189 +17,269 @@ bash run.bash
 
 ### Overview Result of 6 tasks
 
-![oveview](https://scontent.fsgn13-4.fna.fbcdn.net/v/t1.15752-9/291747790_1020372478589642_5077618427286955742_n.png?_nc_cat=107&ccb=1-7&_nc_sid=ae9488&_nc_ohc=-CsnOKO0uOUAX81i7l1&_nc_ht=scontent.fsgn13-4.fna&oh=03_AVKraqqLHVQwlQTHmS_m7RF1VIYJPOseUq1FRwiMXIm0XA&oe=62E80756)
 
 ### Task 1
 
-First of all, we initialize 3 variables of p,q and e with the values given in the problem
-
-```cpp
-	BIGNUM *p = BN_new();
-	BIGNUM *q = BN_new();
-	BIGNUM *e = BN_new();
-
-	BN_hex2bn(&p, "F7E75FDC469067FFDC4E847C51F452DF");
-	BN_hex2bn(&q, "E85CED54AF57E53E092113E62F436F4F");
-	BN_hex2bn(&e, "0D88C3");
+First of all, we run the freq.py file to get the frequency analysis of the cipher text with single-letter frequencies,
+bigram frequencies (2-letter sequence), and trigram frequencies (3-letter sequence)
 
 ```
-
-The next step is to calculate phi[n] (n = p\*q) through the function with p and q are 2 big prime numbers
-<br /> => _phi[n] = (p - 1)\*(q - 1)_
-
-```cpp
-
-BIGNUM* getPhiOf(BIGNUM* p, BIGNUM* q) {
-    BN_CTX *ctx = BN_CTX_new();
-    BIGNUM* p_minus_one = BN_new();
-    BIGNUM* q_minus_one = BN_new();
-    BIGNUM* one = BN_new();
-    BIGNUM* phi = BN_new();
-
-    BN_dec2bn(&one, "1");
-    BN_sub(p_minus_one, p, one);
-    BN_sub(q_minus_one, q, one);
-    BN_mul(phi, p_minus_one, q_minus_one, ctx);
-
-    BN_CTX_free(ctx);
-
-    return phi;
-
-}
+-------------------------------------
+1-gram (top 26):
+n: 488
+y: 373
+v: 348
+x: 291
+u: 280
+q: 276
+m: 264
+h: 235
+t: 183
+i: 166
+p: 156
+a: 116
+c: 104
+z: 95
+l: 90
+g: 83
+b: 83
+r: 82
+e: 76
+d: 59
+f: 49
+s: 19
+k: 5
+j: 5
+o: 4
+w: 1
+-------------------------------------
+2-gram (top 26):
+yt: 115
+tn: 89
+mu: 74
+nh: 58
+vh: 57
+hn: 57
+vu: 56
+nq: 53
+xu: 52
+up: 46
+xh: 45
+yn: 44
+np: 44
+vy: 44
+nu: 42
+qy: 39
+vq: 33
+vi: 32
+gn: 32
+av: 31
+my: 31
+xz: 30
+ym: 30
+yx: 29
+mq: 27
+tv: 27
+-------------------------------------
+3-gram (top 26):
+ytn: 78
+vup: 30
+mur: 20
+ynh: 18
+xzy: 16
+mxu: 14
+gnq: 14
+ytv: 13
+nqy: 13
+vii: 13
+bxh: 13
+lvq: 12
+nuy: 12
+vyn: 12
+uvy: 11
+lmu: 11
+nvh: 11
+cmu: 11
+tmq: 10
+vhp: 10
+vym: 10
+ymx: 10
+nhn: 10
+tvy: 10
+yxh: 10
+yzh: 9
 
 ```
-
-Finally, we have the theory:
-
-<p style="font-weight: bold;" align="center">
-    e*d = 1 (mod phi[n]) => d is inverse modulo of e with mod phi[n];
-</p>
-
-So, the private of key _d_ this problem is the inverse modulo of the big prime number _e_ mod _phi[n]_ computed by the following function using the API **_BN_mod_inverse_**
-
-```cpp
-BIGNUM* getModuloInverseOf(BIGNUM* e, BIGNUM* mod) {
-	BN_CTX *ctx = BN_CTX_new();
-	BIGNUM* res = BN_new();
-	BN_mod_inverse(res, e, mod, ctx);
-	BN_CTX_free(ctx);
-	return res;
-}
-
+According to this result, we can infer the descending order of the single letter's frequency and we can consider this string to be the key for decryption
 ```
-
-The result of this problem is printed to the console as the following:
-
+nyvxuqmhtipaczlgbredfskjow
 ```
-[Task 1] The private key is 3587A24598E5F2A21DB007D89D18CC50ABA5075BA19A33890FE7C28A9B496AEB
+Besides, we have the frequency of single letter in english with the descending order:
 ```
+eothasinrdluymwfgcbpkvjqxz
+```
+Then, with the key and the frequency string of english letter, we create a bash script to conduct the replacement of the cipher text's letter correspoding to the english letter have the same index in the 2 strings of frequency analysis. Finally we are able to achieve the final plain text.
 
 ### Task 2
+Firstly, we create a plain text: "This is the secret content!!!"
+```
+echo "----------[Start Task 02]----------"
 
-In this task, we need 4 variables according to the requirment with the message is encoded:
 
-```cpp
-	BIGNUM* n = BN_new();	// n = p * q
-	BIGNUM* d = BN_new();	// private key
-	BIGNUM* message = BN_new();
-	BIGNUM* e = BN_new();	// public key
+modes=("-aes-128-cbc" "-bf-cbc" "-aes-128-cfb" "-aes-128-ecb")
 
-	BN_hex2bn(&message, "4120746f702073656372657421"); // after encoding "A top secret!" with the python command
-	BN_hex2bn(&n, "DCBFFE3E51F62E09CE7032E2677A78946A849DC4CDDE3A4D0CB81629242FB1A5");
-	BN_hex2bn(&e, "010001");
-	BN_hex2bn(&d, "74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
+for cipherType in "${modes[@]}"
+do
+
+	echo "# Start using mode $cipherType"
+	echo "Plaintext before encrypt:"
+	cat plaintext.txt
+	echo
+
+
+	echo "Encypt with mode: $cipherType"
+	openssl enc "$cipherType" -e -in plaintext.txt -out ciphertext.txt -K 00112233445566778889aabbccddeeff -iv 0102030405060708
+
+	echo "Ciphertext after encrypt:"
+	cat ciphertext.txt
+	echo 
+	echo
+
+	echo "Decrypt with mode: $cipherType"
+	openssl enc "$cipherType" -d -in ciphertext.txt -out decryptedtext.txt -K 00112233445566778889aabbccddeeff -iv 0102030405060708
+
+
+	echo "Ciphertext after decrypt:"
+	cat decryptedtext.txt
+	echo
+
+
+	echo "Diff of plaintext.txt and ciphertext.txt:"
+	diff plaintext.txt decryptedtext.txt
+	echo
+	echo
+	echo
+
+done
+
+echo "----------[End Task 02]----------"
+```
+In the bash script we have create a list of modes for encryption: "-aes-128-cbc" "-bf-cbc" "-aes-128-cfb" "-aes-128-ecb"
+Then, with each mode the encryption is conducted with the openssl enc command and the result is printed to the output through a loop.
+In addition, we decrypt the encrypted text and observe that the result is similar to the original plain text.
+Here is the final result:
+```
+----------[Start Task 02]----------
+# Start using mode -aes-128-cbc
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-cbc
+Ciphertext after encrypt:
+������8��ȳfS�9F]!����Ka�<x��
+
+Decrypt with mode: -aes-128-cbc
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -bf-cbc
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -bf-cbc
+Ciphertext after encrypt:
+��򞆘`����;��B�7�f��!�8��
+
+Decrypt with mode: -bf-cbc
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -aes-128-cfb
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-cfb
+Ciphertext after encrypt:
+���V�V�����=u?g@�{��̛'�L.
+
+Decrypt with mode: -aes-128-cfb
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -aes-128-ecb
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-ecb
+Ciphertext after encrypt:
+���JI�|!��o���mːҖ���8���;�
+
+Decrypt with mode: -aes-128-ecb
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+----------[End Task 02]----------
+
 ```
 
-Now, the message is encoded to hex string so what we need to do is to convert it to BIG NUM to achive the solution. We create a function in order to conduct this conversion as following:
 
-```cpp
-
-BIGNUM* encryptRSA(BIGNUM* rawValue, BIGNUM* encryptKey, BIGNUM* n) {
-	BN_CTX *ctx = BN_CTX_new();
-	BIGNUM* cipherValue = BN_new();
-	BN_mod_exp(cipherValue, rawValue, encryptKey, n, ctx);
-	BN_CTX_free(ctx);
-	return cipherValue;
-}
-
-```
-
-The core idea of this function is the formula:
-
-<p style="font-weight: bold;" align="center">
-	 e(x) = (x ^ e) mod n
-</p>
-
-Which means we can achive the encryption through the public key (e,n) by computing the exponential modulo _(x ^ e) mod n_ with: </br>
-  x: the raw value that need to be encrypted </br>
-  e: the encrypt key
-
-We also create a decrypt function shares the common idea with the encrypt one with:
-
-<p style="font-weight: bold;" align="center">
-	 d(x) = (x ^ d) mod n
-</p>
-
-```cpp
-
-BIGNUM* decryptRSA(BIGNUM* cipherValue, BIGNUM* decryptKey, BIGNUM* n) {
-	BN_CTX *ctx = BN_CTX_new();
-	BIGNUM* rawValue = BN_new();
-	BN_mod_exp(rawValue, cipherValue, decryptKey, n, ctx);
-	BN_CTX_free(ctx);
-	return rawValue;
-}
-
-```
-
-With these 2 functions we are able to print the result of both encrypted message and the decryption of the result and make a comparision to make sure these are equal.
-
-```cpp
-	BIGNUM* cipherValue = encryptRSA(message, e, n);
-
-
-	printBN("[Task 2] encypted text: ", cipherValue);
-
-	BIGNUM* rawValue = decryptRSA(cipherValue, d, n);
-
-	printBN("[Task 2] decypted text: ", rawValue);
-
-	if (BN_cmp(rawValue, message) == 0) {
-		printf("[Task 2] Decypted text == Original text\n");
-	}
-```
-
-</br> Finally, the result is
-
-```cpp
-[Task 2] encypted text:  6FB078DA550B2650832661E14F4F8D2CFAEF475A0DF3A75CACDC5DE5CFC5FADC
-[Task 2] decypted text:  4120746F702073656372657421
-[Task 2] Decypted text == Original text
-```
 
 ### Task 3
+The original picture:
 
-As the public/private keys used in this task are the same as the ones used in Task 2, we have the variables with the ciphertext given by the requirement
+<img  src="https://user-images.githubusercontent.com/63250081/179357050-a13be19f-ce96-424c-b809-f5cd61a63c6b.jpg"/>
 
-```cpp
-	BIGNUM *cipherValue;
-	BIGNUM* d = BN_new();	// private key
-	BIGNUM* e = BN_new();	// public key
-	BIGNUM* n = BN_new();
 
-	BN_hex2bn(&cipherValue, "8C0F971DF2F3672B28811407E2DABBE1DA0FEBBBDFC7DCB67396567EA1E2493F");
-	BN_hex2bn(&n, "DCBFFE3E51F62E09CE7032E2677A78946A849DC4CDDE3A4D0CB81629242FB1A5");
-	BN_hex2bn(&e, "010001");
-	BN_hex2bn(&d, "74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
+
+
+The bash script to solve this problem:
 ```
+head -c 54 pic_original.bmp  > header
 
-The decrypt function is created in task 2 so we result it in this task to convert the ciphertext to the hex string then use API _BN_bn2hex_ to convert the hex string to ASCII string
+openssl enc  -aes-128-cbc  -e -in pic_original.bmp -out raw_encrypted_pic.bmp -K 00112233445566778889aabbccddeeff -iv 0102030405060708
+tail -c +55 raw_encrypted_pic.bmp > body
+cat header body > encrypted_pic_cbc.bmp
 
-```cpp
-	BIGNUM* rawValue = decryptRSA(cipherValue, d, n);
+openssl enc  -aes-128-ecb  -e -in pic_original.bmp -out raw_encrypted_pic.bmp -K 00112233445566778889aabbccddeeff 
+tail -c +55 raw_encrypted_pic.bmp > body
+cat header body > encrypted_pic_ecb.bmp
 
-	printBN("[Task 3] decypted value: ", rawValue);
-
-	printf("[Task 3] raw text: ");
-	printHX(BN_bn2hex(rawValue));
 ```
+Because the first 54 bits s contain the header information about the picture, we store it to a varibale "head".
+With each mode, we encrypt the original picture, through encryption, the header is changed so it is not anymore correctly, to solve this problem, we cat the bits from offset 55 to the end of the file with the orginal 54 bits header to achive the correct encrypted picture.
 
-The final result printed to the console:
+The result of encryption in ECB mode
 
-```cpp
-[Task 3] decypted value:  50617373776F72642069732064656573
-[Task 3] raw text: Password is dees
-```
+<img  src="https://user-images.githubusercontent.com/63250081/179357432-578b9b3e-bc7b-4e9e-af55-733b7fd7a6f9.jpg"/>
+
+The result of encryption in CBC mode
+
+<img  src="https://user-images.githubusercontent.com/63250081/179357462-63af2967-3487-4c48-9469-84ba3083a869.jpg"/>
+
+Through observation, in the result of ECB, we can still recognize the shape, some details of the original picutre while the result of CBC mode does not contain any information of the original picture.
+The reason is:
+
+EBC mode:  only processes single blocks at once and it don't use initialization vector in the encrytion process. As a result, the encrypted output is exactly the same if any underlying block is identical to another.
+
+CBC (cipher-block chaining) mode:  initialization vector must be used prior to starting the encryption and it is considered to be the password,  it is initially hashed for a 256-bit output, followed by AES encryption for a 512-bit output, 256-bits for the following vector, and a 256-bit encrypted output. The following 256 bits are then encrypted using that vector. The chaining process keeps going till the file's end.
+
+
 
 ### Task 4
 
