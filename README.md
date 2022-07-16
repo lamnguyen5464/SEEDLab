@@ -275,152 +275,204 @@ The result of encryption in CBC mode
 Through observation, in the result of ECB, we can still recognize the shape, some details of the original picutre while the result of CBC mode does not contain any information of the original picture.
 The reason is:
 
-EBC mode:  only processes single blocks at once and it don't use initialization vector in the encrytion process. As a result, the encrypted output is exactly the same if any underlying block is identical to another.
+**EBC mode:**  only processes single blocks at once and it don't use initialization vector in the encrytion process. As a result, the encrypted output is exactly the same if any underlying block is identical to another.
 
-CBC (cipher-block chaining) mode:  initialization vector must be used prior to starting the encryption and it is considered to be the password,  it is initially hashed for a 256-bit output, followed by AES encryption for a 512-bit output, 256-bits for the following vector, and a 256-bit encrypted output. The following 256 bits are then encrypted using that vector. The chaining process keeps going till the file's end.
+**CBC (cipher-block chaining) mode:**  initialization vector must be used prior to starting the encryption and it is considered to be the password,  it is initially hashed for a 256-bit output, followed by AES encryption for a 512-bit output, 256-bits for the following vector, and a 256-bit encrypted output. The following 256 bits are then encrypted using that vector. The chaining process keeps going till the file's end.
 
 
 
 ### Task 4
+1. ECB and CBC use padding in encryption while CFB and OFB, because:
+	- While encrypting, ECB and CBC work with fixed-size block of data so if the data size is not enough to match the block size, it need to use padding.
+	- use XOR key use this to XOR the original message so it can work with any size of data and generate the cipher text with the same size of the plain text. As a result, it don't need padding in encryption progress.
 
-To generate a signature, it is neccessary to have variables with the values of the public and private key
-
-```cpp
-	BIGNUM* d = BN_new();	// private key
-	BIGNUM* e = BN_new();	// public key
-	BIGNUM* n = BN_new();
-
-	BN_hex2bn(&n, "DCBFFE3E51F62E09CE7032E2677A78946A849DC4CDDE3A4D0CB81629242FB1A5");
-	BN_hex2bn(&e, "010001");
-	BN_hex2bn(&d, "74D806F9F3A62BAE331FFE3F0A68AFE35B3D2E4794148AACBC26AA381CD7D30D");
+2.First of all, we create 3 file with different size:
 ```
-
-The next step is to encode the message to hex string
-
-```cpp
-	BIGNUM* rawValue = BN_new();
-	BN_hex2bn(&rawValue, "49206f776520796f7520323530302e"); // after encoding: I owe you 2500.
+echo "----------[Start Task 04]----------"
+rm -rf *.txt
+echo "Create 3 files..."
+echo -n "abcde" > f1.txt # 5 bytes
+echo -n "123456789A" > f2.txt # 10 bytes
+echo -n "0123456789ABCDEF" > f3.txt # 16 bytes
+echo "Info of these file:"
 ```
-
-With the encoded message, we use the function encryptRSA to generate the signed message
-</br> The different point of generating signature compared to normal encryption is that generating signature use private key to encrypt and public key to decrypt while normal encryption use public key for encrypting and decrypting.
-</br> Which mean the sender just need to give the receiver the public key to extract the signed message, but this message must be encrypt by the private key. If not, the decryption with the public key will give the wrong answer.
-
-```cpp
-	BIGNUM* rawValue = BN_new();
-	BN_hex2bn(&rawValue, "49206f776520796f7520323530302e"); // after encoding: I owe you 2500.
-
-	BIGNUM* signedValue = encryptRSA(rawValue, d, n); // sign: use private key to encypt
-	printBN("[Task 4] signed value: ", signedValue);
-	BIGNUM* unsignedValue = decryptRSA(signedValue, e, n); // extract signed value: use public key to decrypt
-
-	printBN("[Task 4] unsigned value: ", unsignedValue);
-
-	printf("[Task 4] Origin text: ");
-	printHX(BN_bn2hex(unsignedValue));
-```
-
-Here we use the encoded value to generate signature and use public key to decrypt this value combined with API _BN_bn2hex_ to archive the original message:
+And this are a list of modes for encryption and list of file besides the fixed key and iv:
 
 ```
-[Task 4] signed value:  0B327F9EF80760C3136DB55C90E963429290E31ECC7D3975398263269F2965C8
-[Task 4] unsigned value:  49206F776520796F7520323530302E
-[Task 4] Origin text: I owe you 2500.
+ls -l
+files=("f1.txt" "f2.txt" "f3.txt")
+modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
+key=00112233445566778889aabbccddeeff
+iv=0102030405060708
 ```
+Finally, a nested loop is conducted to encrypt each file with each mode and print the result to the output:
+```
+for cipherType in "${modes[@]}"
+do
+	echo "Start with mode $cipherType..."
+	for file in "${files[@]}"
+	do 
+		encrypted_file="encrypted"$cipherType"-${file}"
+		decrypted_file="decrypted"$cipherType"-${file}"
+		openssl enc "$cipherType" -e -in "$file" -out "$encrypted_file" -K $key -iv $iv
+
+		openssl enc "$cipherType" -d -in "$encrypted_file" -out "$decrypted_file" -K $key -iv $iv  -nopad
+
+		echo "origin file:"
+		xxd "$file"
+		echo "decrypted file:"
+		xxd "$decrypted_file"
+		echo
+
+	done 
+done
+
+echo "=> OFB, CFB do not have padding"
+
+ls -l
+
+echo "----------[End Task 04]----------"
+
+```
+The result of our process:
+```
+----------[Start Task 04]----------
+Create 3 files...
+Info of these file:
+total 20
+-rw-rw-r-- 1 seed seed   5 Jul 16 04:04 f1.txt
+-rw-rw-r-- 1 seed seed  10 Jul 16 04:04 f2.txt
+-rw-rw-r-- 1 seed seed  16 Jul 16 04:04 f3.txt
+-rw-rw-r-- 1 seed seed  74 Jul 16 04:04 output.out
+-rw-rw-r-- 1 seed seed 984 Jul 16 04:04 task_04.bash
+Start with mode -aes-128-cbc...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 650b 0b0b 0b0b 0b0b 0b0b 0b0b  abcde...........
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941 0606 0606 0606  123456789A......
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+00000010: 1010 1010 1010 1010 1010 1010 1010 1010  ................
+
+Start with mode -aes-128-cfb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 65                             abcde
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+
+Start with mode -aes-128-ecb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 650b 0b0b 0b0b 0b0b 0b0b 0b0b  abcde...........
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941 0606 0606 0606  123456789A......
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+00000010: 1010 1010 1010 1010 1010 1010 1010 1010  ................
+
+Start with mode -aes-128-ofb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 65                             abcde
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+
+=> OFB, CFB do not have padding
+total 116
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cbc-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cbc-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 decrypted-aes-128-cbc-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 decrypted-aes-128-cfb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 decrypted-aes-128-cfb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cfb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ecb-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ecb-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 decrypted-aes-128-ecb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 decrypted-aes-128-ofb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 decrypted-aes-128-ofb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ofb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cbc-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cbc-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 encrypted-aes-128-cbc-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 encrypted-aes-128-cfb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 encrypted-aes-128-cfb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cfb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ecb-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ecb-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 encrypted-aes-128-ecb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 encrypted-aes-128-ofb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 encrypted-aes-128-ofb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ofb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 f3.txt
+-rw-rw-r-- 1 seed seed 2514 Jul 16 04:04 output.out
+-rw-rw-r-- 1 seed seed  984 Jul 16 04:04 task_04.bash
+----------[End Task 04]----------
+
+```
+Through observation, with ECB and CBC mode encryption, the encrypted files of file 1 and file 2 are padding until each reach 16 and file 3 is padding until it reach 32. As a result, we can conclude that the size of the files change through encryption with ECB and CBC mode while does not change through OFB, CFB.
+So it once more time assert that just ECB and CBC need padding.
+
 
 ### Task 5
-
-First of all, we assign the raw value and the public key to variables:
-
-```cpp
-	BIGNUM* rawValue = BN_new();
-	BIGNUM* signedValue = BN_new();
-	BIGNUM* e = BN_new();
-	BIGNUM* n = BN_new();
-	BN_hex2bn(&rawValue, "4c61756e63682061206d6973736c652e");	// after encoding: Launch a missile.
-	BN_hex2bn(&n, "AE1CD4DC432798D933779FBD46C6E1247F0CF1233595113AA51B450F18116115");
-	BN_hex2bn(&e, "010001");
-	BN_hex2bn(&signedValue, "643D6F34902D9C7EC90CB0B2BCA36C47FA37165C0005CAB026C0542CBDB6802F");
+First we encrypt the plain text with several modes:
 ```
 
-Then we use the public key and the decrypt RSA method with the function created in the previous task to verify the sign:
+file=file.txt
+modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
+key=00112233445566778889aabbccddeeff
+iv=0102030405060708
 
-```cpp
-	BIGNUM* decryptedValue = decryptRSA(signedValue, e, n);
-	printf("[Task 5] extracted sign: ");
-	printHX(BN_bn2hex(decryptedValue));
-```
 
-And we have the decrypted value:
+for cipherType in "${modes[@]}"
+do
+	encrypted_file="encrypted"$cipherType"-${file}"
+	decrypted_file="decrypted"$cipherType"-${file}"
+	openssl enc "$cipherType" -e -in "$file" -out "$encrypted_file" -K $key -iv $iv
 
-```
-[Task 5] extracted sign: Launch a missile.
-```
-
-Through observation, the extracted sign is similar to the original message Alice sent to Bob => the signature is Alice's.
-
-So, now we change the last 2 byte of the signed value from 2F to 3F then repeat the verify process.
-
-```cpp
-	BN_hex2bn(&signedValue, "643D6F34902D9C7EC90CB0B2BCA36C47FA37165C0005CAB026C0542CBDB6803F");
-	BIGNUM* redecryptedValue = decryptRSA(signedValue, e, n);
-	printf("[Task 5] corrupted text:\n");
-	printHX(BN_bn2hex(redecryptedValue)); // corrupted value
-```
-
-We receive a corrupted value as following:
+	# openssl enc "$cipherType" -d -in "$encrypted_file" -out "$decrypted_file" -K $key -iv $iv
+done
 
 ```
-[Task 5] corrupted text:
-��,O�c��rm=f�:N�����
-```
+After that, we make the corruption by using the tool to change the 55th bit to 00
+<img src="https://user-images.githubusercontent.com/63250081/179359028-af04d063-986b-4b00-89d0-35a69752e186.png"/>
 
-So, it's not the message Alice sent to Bob according to the modification of the signed value.
-
-In conclusion, unless the message is correctly signed with the sender's private key, it will be impossible to extract the right message through the verification process.
 
 ### Task 6
 
-After following the steps in the requirement to download the certificate, we need to extract the public key and the signed message from the downloaded certificate.
-</br>We get the public key by:
-</br>   **n**: run '_extract in openssl x509 -in c1.pem -text -noout_'
-</br>   **e**: receive from the certificate x509
-</br>   **signedValue**: run '_extract in openssl x509 -in c0.pem -text -noout_'
 
-```cpp
-	BN_CTX *ctx = BN_CTX_new();
-
-	BIGNUM* e = BN_new();
-	BIGNUM* d = BN_new();
-	BIGNUM* n = BN_new();
-	BIGNUM* signedValue = BN_new();
-
-	// extract in openssl x509 -in c1.pem -text -noout
-	BN_hex2bn(&n, "00c14bb3654770bcdd4f58dbec9cedc366e51f311354ad4a66461f2c0aec6407e52edcdcb90a20eddfe3c4d09e9aa97a1d8288e51156db1e9f58c251e72c340d2ed292e156cbf1795fb3bb87ca25037b9a52416610604f571349f0e8376783dfe7d34b674c2251a6df0e9910ed57517426e27dc7ca622e131b7f238825536fc13458008b84fff8bea75849227b96ada2889b15bca07cdfe951a8d5b0ed37e236b4824b62b5499aecc767d6e33ef5e3d6125e44f1bf71427d58840380b18101faf9ca32bbb48e278727c52b74d4a8d697dec364f9cace53a256bc78178e490329aefb494fa415b9cef25c19576d6b79a72ba2272013b5d03d40d321300793ea99f5");
-	BN_hex2bn(&e, "010001");
-	// extract in openssl x509 -in c0.pem -text -noout
-	BN_hex2bn(&signedValue, "aa9fbe5d911bade44e4ecc8f07644435b4ad3b133fc129d8b4abf3425149463bd6cf1e4183e10b572f83697965076f59038c51948918103e1e5cedba3d8e4f1a1492d32bffd498cba7930ebcb71b93a4424246d9e5b11a6b682a9b2e48a92f1d2ab0e3f820945481502eeed7e0207a7b2e67fbfad817a45bdcca0062ef23af7a58f07a740cbd4d43f18c0287dce3ae09d2f7fa373cd24bab04e543a5d255110e41875f38a8e57a5e4c46b8b6fa3fc34bcd4035ffe0a471740ac1208be3544784d518bd519b405ddd423012d13aa5639aaf9008d61bd1710b067190ebaeadafba5fc7db6b1e78a2b4d10623a763f3b543fa568c50177b1c1b4e106b220e845294");
-```
-
-Then, we use our decryptRSA function to extract the signedValue variable to archive the decrypted message then mod 2^256 to have the private key. Finally, we compare that key with the key extracted from the certificate archived by running '_bash key.bash_'
-
-```cpp
-	BIGNUM* decryptedValue = decryptRSA(signedValue, e, n);
-	BIGNUM* mod = BN_new();
-	BIGNUM* num_2 = BN_new();
-	BIGNUM* num_256 = BN_new();
-	BN_dec2bn(&num_2, "2");
-	BN_dec2bn(&num_256, "256");
-
-	BN_exp(mod, num_2, num_256, ctx);
-	BN_mod(d, decryptedValue, mod, ctx);
-	printBN("[Task 6] private key: ", d);	// then compare with private key after run key.bash
-```
-
-The final result:
-
-```
-[Task 6] private key:  7061DF0A50B8F2BA3367ECFABAB273A16F3BB1378DBE1FE524E6DFD90DFA3B91
-Private key extracted from certificate:
-7061df0a50b8f2ba3367ecfabab273a16f3bb1378dbe1fe524e6dfd90dfa3b91  c0_body.bin
-```
