@@ -472,7 +472,91 @@ done
 After that, we make the corruption by using the tool to change the 55th bit to 00
 <img src="https://user-images.githubusercontent.com/63250081/179359028-af04d063-986b-4b00-89d0-35a69752e186.png"/>
 
+Then, we decrypt the modified files to compare the change of it with the original file
+```
+file=file.txt
+modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
+key=00112233445566778889aabbccddeeff
+iv=0102030405060708
 
-### Task 6
+
+for cipherType in "${modes[@]}"
+do
+	encrypted_file="encrypted"$cipherType"-${file}"
+	decrypted_file="decrypted"$cipherType"-${file}"
+
+	openssl enc "$cipherType" -d -in "$encrypted_file" -out "$decrypted_file" -K $key -iv $iv
+done
+
+
+
+```
+
+We create a python file to compare and bash script to conduct these comparision:
+
+Compare algorithm:
+```
+with open('file.txt', 'rb') as f:
+    f1 = f.read()
+with open('common_decrypted_file.txt', 'rb') as f:
+    f2 = f.read()
+cnt = 0
+for i in range(min(len(f1), len(f2))):
+    if f1[i] != f2[i]:
+        cnt += 1
+print("differences: "+str(cnt))
+
+```
+Bash script to compare and print the difference:
+```
+modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
+file=file.txt
+echo "Origin file: "
+cat "$file"
+echo
+for cipherType in "${modes[@]}"
+do
+        decrypted_file="decrypted"$cipherType"-${file}"
+	echo "$decrypted_file: "
+	cat "$decrypted_file"
+	cp "$decrypted_file" common_decrypted_file.txt
+	python3 checkDiff.py
+	echo
+
+done
+```
+Here is the final result of the comparison:
+```
+Origin file: 
+123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z
+
+decrypted-aes-128-cbc-file.txt: 
+123abc456z123abc456z123abc456z123abc456z123abc45�r�W?��/�m#�-4�bc456z1e3abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z
+differences: 17
+
+decrypted-aes-128-cfb-file.txt: 
+123abc456z123abc456z123abc456z123abc456z123abc456z123ab�456z123a��:���(�������123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z
+differences: 17
+
+decrypted-aes-128-ecb-file.txt: 
+123abc456z123abc456z123abc456z123abc456z123abc45 �YtJ�x5c!�J��bc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z
+differences: 15
+
+decrypted-aes-128-ofb-file.txt: 
+123abc456z123abc456z123abc456z123abc456z123abc456z123ab&456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z123abc456z
+differences: 1
+
+
+```
+The number of differences of each mode is:
+```
+CBC: 17
+CFB: 17
+ECB: 15
+OFB: 1
+```
+In conclusion, the larger the number of differences is, the more considerable infomation lost is if a part of encrypted file is corrupted. 
+
+
 
 
