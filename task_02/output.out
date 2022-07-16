@@ -1,0 +1,66 @@
+----------[Start Task 02]----------
+# Start using mode -aes-128-cbc
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-cbc
+Ciphertext after encrypt:
+ø“»·şÈ8àÅÈ³fSï9F]!ó‡ÀÕßKa±<x­¦
+
+Decrypt with mode: -aes-128-cbc
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -bf-cbc
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -bf-cbc
+Ciphertext after encrypt:
+Áò†˜`‘´½„;äÑBú7Ífê¦ì!´8‚·
+
+Decrypt with mode: -bf-cbc
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -aes-128-cfb
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-cfb
+Ciphertext after encrypt:
+ÓîæVáVÉñÛöÚ=u?g@Á{ºôÌ›'¸L.
+
+Decrypt with mode: -aes-128-cfb
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+# Start using mode -aes-128-ecb
+Plaintext before encrypt:
+This is the secret content!!!
+
+Encypt with mode: -aes-128-ecb
+Ciphertext after encrypt:
+éúÖJIå|!İùo¾¼¿mËÒ–•ÛØ8Šşäµ;¦
+
+Decrypt with mode: -aes-128-ecb
+Ciphertext after decrypt:
+This is the secret content!!!
+
+Diff of plaintext.txt and ciphertext.txt:
+
+
+
+----------[End Task 02]----------

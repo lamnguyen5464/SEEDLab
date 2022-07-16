@@ -1,0 +1,107 @@
+----------[Start Task 04]----------
+Create 3 files...
+Info of these file:
+total 20
+-rw-rw-r-- 1 seed seed   5 Jul 16 04:04 f1.txt
+-rw-rw-r-- 1 seed seed  10 Jul 16 04:04 f2.txt
+-rw-rw-r-- 1 seed seed  16 Jul 16 04:04 f3.txt
+-rw-rw-r-- 1 seed seed  74 Jul 16 04:04 output.out
+-rw-rw-r-- 1 seed seed 984 Jul 16 04:04 task_04.bash
+Start with mode -aes-128-cbc...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 650b 0b0b 0b0b 0b0b 0b0b 0b0b  abcde...........
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941 0606 0606 0606  123456789A......
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+00000010: 1010 1010 1010 1010 1010 1010 1010 1010  ................
+
+Start with mode -aes-128-cfb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 65                             abcde
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+
+Start with mode -aes-128-ecb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 650b 0b0b 0b0b 0b0b 0b0b 0b0b  abcde...........
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941 0606 0606 0606  123456789A......
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+00000010: 1010 1010 1010 1010 1010 1010 1010 1010  ................
+
+Start with mode -aes-128-ofb...
+origin file:
+00000000: 6162 6364 65                             abcde
+decrypted file:
+00000000: 6162 6364 65                             abcde
+
+origin file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+decrypted file:
+00000000: 3132 3334 3536 3738 3941                 123456789A
+
+origin file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+decrypted file:
+00000000: 3031 3233 3435 3637 3839 4142 4344 4546  0123456789ABCDEF
+
+=> OFB, CFB do not have padding
+total 116
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cbc-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cbc-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 decrypted-aes-128-cbc-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 decrypted-aes-128-cfb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 decrypted-aes-128-cfb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-cfb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ecb-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ecb-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 decrypted-aes-128-ecb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 decrypted-aes-128-ofb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 decrypted-aes-128-ofb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 decrypted-aes-128-ofb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cbc-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cbc-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 encrypted-aes-128-cbc-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 encrypted-aes-128-cfb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 encrypted-aes-128-cfb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-cfb-f3.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ecb-f1.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ecb-f2.txt
+-rw-rw-r-- 1 seed seed   32 Jul 16 04:04 encrypted-aes-128-ecb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 encrypted-aes-128-ofb-f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 encrypted-aes-128-ofb-f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 encrypted-aes-128-ofb-f3.txt
+-rw-rw-r-- 1 seed seed    5 Jul 16 04:04 f1.txt
+-rw-rw-r-- 1 seed seed   10 Jul 16 04:04 f2.txt
+-rw-rw-r-- 1 seed seed   16 Jul 16 04:04 f3.txt
+-rw-rw-r-- 1 seed seed 2514 Jul 16 04:04 output.out
+-rw-rw-r-- 1 seed seed  984 Jul 16 04:04 task_04.bash
+----------[End Task 04]----------
