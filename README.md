@@ -122,7 +122,7 @@ Then, with the key and the frequency string of english letter, we create a bash 
 
 ### Task 2
 Firstly, we create a plain text: "This is the secret content!!!"
-```
+``` bash
 echo "----------[Start Task 02]----------"
 
 
@@ -168,7 +168,7 @@ In the bash script we have create a list of modes for encryption: "-aes-128-cbc"
 Then, with each mode the encryption is conducted with the openssl enc command and the result is printed to the output through a loop.
 In addition, we decrypt the encrypted text and observe that the result is similar to the original plain text.
 Here is the final result:
-```
+``` 
 ----------[Start Task 02]----------
 # Start using mode -aes-128-cbc
 Plaintext before encrypt:
@@ -249,7 +249,7 @@ The original picture:
 
 
 The bash script to solve this problem:
-```
+``` bash
 head -c 54 pic_original.bmp  > header
 
 openssl enc  -aes-128-cbc  -e -in pic_original.bmp -out raw_encrypted_pic.bmp -K 00112233445566778889aabbccddeeff -iv 0102030405060708
@@ -287,7 +287,7 @@ The reason is:
 	- use XOR key use this to XOR the original message so it can work with any size of data and generate the cipher text with the same size of the plain text. As a result, it don't need padding in encryption progress.
 
 2.First of all, we create 3 file with different size:
-```
+``` bash
 echo "----------[Start Task 04]----------"
 rm -rf *.txt
 echo "Create 3 files..."
@@ -298,7 +298,7 @@ echo "Info of these file:"
 ```
 And this are a list of modes for encryption and list of file besides the fixed key and iv:
 
-```
+``` bash
 ls -l
 files=("f1.txt" "f2.txt" "f3.txt")
 modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
@@ -306,7 +306,7 @@ key=00112233445566778889aabbccddeeff
 iv=0102030405060708
 ```
 Finally, a nested loop is conducted to encrypt each file with each mode and print the result to the output:
-```
+``` bash
 for cipherType in "${modes[@]}"
 do
 	echo "Start with mode $cipherType..."
@@ -451,7 +451,7 @@ So it once more time assert that just ECB and CBC need padding.
 
 ### Task 5
 First we encrypt the plain text with several modes:
-```
+``` bash
 
 file=file.txt
 modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
@@ -495,7 +495,7 @@ done
 We create a python file to compare and bash script to conduct these comparision:
 
 Compare algorithm:
-```
+``` python
 with open('file.txt', 'rb') as f:
     f1 = f.read()
 with open('common_decrypted_file.txt', 'rb') as f:
@@ -508,7 +508,7 @@ print("differences: "+str(cnt))
 
 ```
 Bash script to compare and print the difference:
-```
+``` bash
 modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
 file=file.txt
 echo "Origin file: "
