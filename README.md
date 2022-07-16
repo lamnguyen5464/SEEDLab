@@ -335,7 +335,7 @@ echo "----------[End Task 04]----------"
 
 ```
 The result of our process:
-```
+``` 
 ----------[Start Task 04]----------
 Create 3 files...
 Info of these file:
@@ -473,7 +473,7 @@ After that, we make the corruption by using the tool to change the 55th bit to 0
 <img src="https://user-images.githubusercontent.com/63250081/179359028-af04d063-986b-4b00-89d0-35a69752e186.png"/>
 
 Then, we decrypt the modified files to compare the change of it with the original file
-```
+``` bash
 file=file.txt
 modes=("-aes-128-cbc" "-aes-128-cfb" "-aes-128-ecb" "-aes-128-ofb" )
 key=00112233445566778889aabbccddeeff
