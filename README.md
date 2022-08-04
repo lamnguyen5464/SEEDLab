@@ -117,4 +117,20 @@ prime2:
     5f:2a:7b:ca:ca:17:35:5c:a9
 ```
 
-
+### Task 2
+In this task, first of all we copy default openssl config file to our reporistory
+```
+cp "/usr/lib/ssl/openssl.cnf" "/home/seed/Lab/task_01/"
+```
+We have written a bash script to generate a Certificate Signing Request (CSR) with the server name: **www.nguyen2022.com**
+```
+openssl req -newkey rsa:2048 -sha256  \
+	-keyout server.key   -out server.csr  \
+	-subj "/CN=www.nguyen2022.com/O=Bank32 Inc./C=US" \
+	-passout pass:123456
+```
+The result with the pair of public and private key is stored in the files server.csr and server.key respectively. Finally, we run the script to achieve decoded content of the CSR and private key files and get the output.yaml file
+```
+openssl req  -in server.csr -text -noout
+openssl rsa  -in server.key -text -noout
+```
