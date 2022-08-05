@@ -174,3 +174,30 @@ openssl req  -in server.csr -text -noout
 openssl rsa  -in server.key -text -noout
 
 ```
+
+### Task 4
+In task 4, firstly, we try to deploy the host using docker:
+
+**Docker setup**
+	
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183033860-d447f937-b947-4125-8d82-780d74507ba2.png"/>
+
+**Docker start**
+	
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183034847-e579e9c6-037b-49f5-950a-988a960c9bea.png"/>
+
+Then, we set up the apache website:
+
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183035057-af004a37-1a72-4115-a718-abad96aed2d5.png"/>
+
+But there is a problem with is stop here, the website will showing error with the lock when we approach it with the browser which is caused by the lack of certificate, and that is not the final result we want to achieve. So we import the CA from the task 3 to use for this website deployment:
+
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183035419-f34b6ec3-2381-480a-8c5f-2e951c1e4a08.png"/>
+
+And this is the final result:
+
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183035611-04b27766-257a-45c8-b88a-426bdb2ec037.png"/>
+
+
+
+
