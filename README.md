@@ -134,3 +134,43 @@ The result with the pair of public and private key is stored in the files server
 openssl req  -in server.csr -text -noout
 openssl rsa  -in server.key -text -noout
 ```
+
+### Task 3
+With task 3, we following the steps in the previous task to generate the Certificate Authority (CA) with the generated public and private key is stored in the ca.cst and ca.key file
+
+The following bask script help us to generate the CA:
+```
+# 1 copy default openssl config file
+cp "/usr/lib/ssl/openssl.cnf" "/home/seed/Lab/task_03/"
+
+# 2 generate CA
+openssl req -x509 -newkey rsa:4096 -sha256 -days 3650 \
+        -keyout ca.key -out ca.crt  \
+        -passout pass:123456 \
+        -config openssl.cnf
+```
+Next, we have some set up the directories to turn certificate signing request (server.csr) into an X509
+certificate (server.crt)
+
+```
+mkdir demoCA
+cd demoCA
+mkdir certs crl newcerts
+echo 1000 >  serial
+touch index.txt
+```
+
+Finally, the following bash script is in charge of generating the certificate for the server, and the result is stored in sever.crt file
+```
+openssl ca -config openssl.cnf -policy policy_anything \
+           -md sha256 -days 3650 \
+           -in server.csr -out server.crt -batch \
+           -cert ca.crt -keyfile ca.key
+
+```
+Script to have a look at decoded key:
+```
+openssl req  -in server.csr -text -noout
+openssl rsa  -in server.key -text -noout
+
+```
