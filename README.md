@@ -199,5 +199,42 @@ And this is the final result:
 <img width="700" src="https://user-images.githubusercontent.com/63250081/183035611-04b27766-257a-45c8-b88a-426bdb2ec037.png"/>
 
 
+### Task 5
+After follow the steps in the requirement to set up a DNS attack, we try to visit the real website an observe the same interface with the real one but the domain of the website is fake_nguyen2020 instead of nguyen_2020 and there is a lock warning next to the domain name.
+
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183089591-84c0c56a-a813-41af-a16b-cf58982fc023.png"/>
+
+### Task 6
+Firstly we use the following bash script to generate a fake server certificate
+```
+openssl req -newkey rsa:2048 -sha256  \
+        -keyout fake_server.key   -out fake_server.csr  \
+        -subj "/CN=www.fake_nguyen2022.com/O=FakeNguyen2022 Inc./C=US" \
+        -passout pass:123456
+```
+Then we set up the directories and sign this fake cerificate with the CA from the previous tasks:
+```
+# 2 set up required dirs
+mkdir demoCA
+cd demoCA
+mkdir certs crl newcerts
+echo 1000 >  serial
+touch index.txt
+
+```
+
+```
+openssl ca -config openssl.cnf -policy policy_anything \
+           -md sha256 -days 3650 \
+           -in fake_server.csr -out fake_server.crt -batch \
+           -cert ca.crt -keyfile ca.key
+```
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183093708-ccf9c369-fafa-4647-8f53-106a265e53fd.png"/>
+
+And with this fake certificate when we try to visit the right website this execute man in the middle successfully without the lock warning
+
+<img width="700" src="https://user-images.githubusercontent.com/63250081/183093994-51b66540-f341-40bf-b8bc-b59f6cfe32ea.png"/>
+
+
 
 
