@@ -196,7 +196,7 @@ But there is a problem with is stop here, the website will showing error with th
 
 And this is the final result:
 
-<img width="700" src="https://user-images.githubusercontent.com/63250081/183035611-04b27766-257a-45c8-b88a-426bdb2ec037.png"/>
+<img width="700" src="./task_04/4-result.png"/>
 
 
 ### Task 5
